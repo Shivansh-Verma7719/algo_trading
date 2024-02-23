@@ -1,0 +1,119 @@
+Metadata-Version: 2.1
+Name: shoonya
+Version: 0.1.4
+Summary: Unofficial Trading APIs for Finvasia Shoonya Platform, help for algo traders
+Author: Algo 2 Trade
+Author-email: help@algo2.trade
+Requires-Python: >=3.9,<4.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Description-Content-Type: text/markdown
+
+# [shoonya](https://gitlab.com/algo2t/shoonya)
+
+Unofficial Trading APIs for Finvasia Shoonya Web Platform.
+
+[Finvasia](https://finvasia.com) offers Zero Brokerage trading and is doing good recently with it's new Shoonya platform.  
+Please check [shoonya](https://shoonya.finvasia.com) web platform.  
+Open account with [Finvasia](https://finvasia.com)
+
+**WORK IS STILL IN PROGRESS**
+
+**USE AT YOUR OWN RISK**
+
+## Installation
+
+- Python version `>3.9` is needed for this module to work
+- Git is required for below command to work
+- `pip install git+https://gitlab.com/algo2t/shoonya.git`
+
+## Alternate way
+
+- Download the `.whl` file from releases section
+- Using pip to install => `python -m pip install shoonya-0.1.0-py3-none-any.whl`
+
+## How to setup a good environment
+
+- Install latest Python version 3.9.x, download it from [here](https://www.python.org/downloads/)
+- Linux comes with python upgrade it to latest version 3.9.x
+- Use [scoop](https://scoop.sh) for Windows as package manager.
+- Use your favorite editor like [VSCodium](https://vscodium.com/) or [VSCode](https://code.visualstudio.com/) download it from [here](https://code.visualstudio.com/Download)
+- VScode is available for Windows, Linux and Mac
+- Python extension for vscode is [here](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+- MagicPython is also good extension
+- Wonderful documentation for working with python and vscode is [here](https://code.visualstudio.com/docs/languages/python)
+- Use virtualenv to create a virtual python env so that your system is not affected
+- Steps for virtualenv creation - `python -m pip install virtualenv` and then virtualenv venv
+- Activate the `venv` => `.\venv\Scripts\activate` (this is an example for Windows OS)
+- Install and upgrade modules `(venv) PS D:\trading\algo2trade\shoonya> python -m pip install -U pip wheel setuptools pylint rope autopep8`
+
+## Usage
+
+```python
+# Check config.py example FIRST
+
+from config import username, password, panno
+
+from shoonya import Shoonya
+
+access_params = Shoonya.login_and_get_authorizations(username=username, password=password, panno=panno)
+
+print(access_params)
+with open('params.json', 'w') as wrl:
+    json.dump(access_params, wrl)
+
+```
+
+## `config.py` example
+
+```python
+
+username='FA12345'
+password='FinvAsia@P123'
+panno='ABCDE1234Z'
+
+```
+
+## Usage existing `params.json`
+
+```python
+
+import json
+from config import username, password, panno
+
+from shoonya import Shoonya, TransactionType, ProductType, OrderType, InstrumentType
+
+
+# NOTE: The params.json is created using the above login example
+
+ACCESS_FILE = f'params.json'
+with open(ACCESS_FILE, "r") as access:
+    credentials = json.load(access)
+    access_token = credentials["access_token"]
+    key = credentials['key']
+    token = credentials["token_id"]
+    username = credentials['user_id']
+    usercode = credentials["usercode"]
+    usertype = credentials["usertype"]
+    panno = credentials['panno']
+
+shn = Shoonya(username, access_token, panno, key,
+              token, usercode, usertype, master_contracts_to_download=['NSE', 'NFO'])
+
+bal = shn.get_limits()
+print(bal)
+df = pd.DataFrame(bal, index=None)
+df['MTM'] = df['REALISED_PROFITS'] + df['MTM_COMBINED']
+print(df[['MTM','REALISED_PROFITS', 'AMOUNT_UTILIZED',
+      'CLEAR_BALANCE', 'AVAILABLE_BALANCE', 'MTM_COMBINED']])
+
+scrip = shn.get_instrument_by_symbol('NSE', 'SBIN')
+print(scrip)
+
+
+```
+
+## Check complete example in examples folder
+
+- [Here](https://gitlab.com/algo2t/shoonya/-/blob/main/examples/) `using_existing_access_tokens.py` is present for help
+
