@@ -3,7 +3,6 @@ import pandas as pd
 import files_interact
 import login
 import supertrend
-import impulsemacd
 import tsi
 import threading
 import os
@@ -95,52 +94,32 @@ def check_trade(outer, inner, df):
             supertrend_signal = False
         
         if (supertrend_signal == True):
-            if (df_impulse["ImpulseMACD"].iloc[-1] != 0):
-                bull_or_bear = df_ultimate["STX17_3.0"].iloc[-1]
-                if (bull_or_bear == "up"):
-                    impulse_temp1 = (df_impulse["ImpulseMACD"].iloc[-1]) - (df_impulse["ImpulseMACDCDSignal"].iloc[-1])
-                    impulse_temp2 = (df_impulse["ImpulseMACD"].iloc[-2]) - (df_impulse["ImpulseMACDCDSignal"].iloc[-2])
-                    if (impulse_temp2 < 0 and impulse_temp1 > 0):
-                        impulse_waiting = True
-                    elif (impulse_temp1 > impulse_temp2):
-                        if abs(impulse_temp1) > 5:
-                            impulse_signal = True               
+            if (bull_or_bear == "up"):
+                tsi_temp1 = (df_tsi["TSI_13_25_13"].iloc[-1]) - (df_tsi["TSIs_13_25_13"].iloc[-1])
+                tsi_temp2 = (df_tsi["TSI_13_25_13"].iloc[-2]) - (df_tsi["TSIs_13_25_13"].iloc[-2])
+                if (tsi_temp2 < 0 and tsi_temp1 > 0):
+                    tsi_waiting = True
+                elif (tsi_temp1 > tsi_temp2):
+                    signal = True               
+            else:
+                tsi_temp1 = (df_tsi["TSIs_13_25_13"].iloc[-1]) - (df_tsi["TSI_13_25_13"].iloc[-1])
+                tsi_temp2 = (df_tsi["TSIs_13_25_13"].iloc[-2]) - (df_tsi["TSI_13_25_13"].iloc[-2])
+                if (tsi_temp2 < 0 and tsi_temp1 > 0):
+                    tsi_waiting = True
+                elif (tsi_temp1 > tsi_temp2):
+                    signal = True
+
+            if(impulse_waiting ==True or tsi_waiting == True):
+                confirmation_waiting = True    
+            elif (signal == True):
+                comparison_time = current_time.replace(hour=9, minute=20, second=0, microsecond=0)
+                if current_time < comparison_time:
+                    confirmation_waiting = True
                 else:
-                    impulse_temp1 = (df_impulse["ImpulseMACDCDSignal"].iloc[-1]) - (df_impulse["ImpulseMACD"].iloc[-1])
-                    impulse_temp2 = (df_impulse["ImpulseMACDCDSignal"].iloc[-2]) - (df_impulse["ImpulseMACD"].iloc[-2])
-                    if (impulse_temp2 > 0 and impulse_temp1 < 0):
-                        impulse_waiting = True
-                    elif (impulse_temp1 > impulse_temp2):
-                        if abs(impulse_temp1) > 5:
-                            impulse_signal = True
+                    set_stoploss(df, bull_or_bear)
             
-                if (impulse_signal == True or impulse_waiting == True):
-                    if (bull_or_bear == "up"):
-                        tsi_temp1 = (df_tsi["TSI_13_25_13"].iloc[-1]) - (df_tsi["TSIs_13_25_13"].iloc[-1])
-                        tsi_temp2 = (df_tsi["TSI_13_25_13"].iloc[-2]) - (df_tsi["TSIs_13_25_13"].iloc[-2])
-                        if (tsi_temp2 < 0 and tsi_temp1 > 0):
-                            tsi_waiting = True
-                        elif (tsi_temp1 > tsi_temp2):
-                            signal = True               
-                    else:
-                        tsi_temp1 = (df_tsi["TSIs_13_25_13"].iloc[-1]) - (df_tsi["TSI_13_25_13"].iloc[-1])
-                        tsi_temp2 = (df_tsi["TSIs_13_25_13"].iloc[-2]) - (df_tsi["TSI_13_25_13"].iloc[-2])
-                        if (tsi_temp2 < 0 and tsi_temp1 > 0):
-                            tsi_waiting = True
-                        elif (tsi_temp1 > tsi_temp2):
-                            signal = True
-        
-                    if(impulse_waiting ==True or tsi_waiting == True):
-                        confirmation_waiting = True    
-                    elif (signal == True):
-                        comparison_time = current_time.replace(hour=9, minute=20, second=0, microsecond=0)
-                        if current_time < comparison_time:
-                            confirmation_waiting = True
-                        else:
-                            set_stoploss(df, bull_or_bear)
-                    
-                    if (confirmation_waiting == True):
-                        signal = False
+            if (confirmation_waiting == True):
+                signal = False
                 
     return signal, confirmation_waiting, bull_or_bear
     
