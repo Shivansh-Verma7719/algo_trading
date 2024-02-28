@@ -167,68 +167,70 @@ def main():
     lastBusDay = datetime.datetime.now()-datetime.timedelta(days=16)
     lastBusDay = lastBusDay.replace(hour=0, minute=0, second=0, microsecond=0)
     ret = client.get_time_price_series(exchange="NSE", token = str(int(token)), starttime=int(lastBusDay.timestamp()), interval="5")
-    ret_exit = client.get_time_price_series(exchange="NSE", token = str(int(token)), starttime=int(lastBusDay.timestamp()), interval="3")
+    # ret_exit = client.get_time_price_series(exchange="NSE", token = str(int(token)), starttime=int(lastBusDay.timestamp()), interval="3")
     ret = pd.DataFrame.from_dict(ret)
-    ret_exit = pd.DataFrame.from_dict(ret_exit)
+    # ret_exit = pd.DataFrame.from_dict(ret_exit)
     ret["time"] = pd.to_datetime(ret["time"], dayfirst=True)
-    ret_exit["time"] = pd.to_datetime(ret_exit["time"], dayfirst=True)
+    # ret_exit["time"] = pd.to_datetime(ret_exit["time"], dayfirst=True)
     ret.sort_values(by='time', ascending=True, inplace=True)
-    ret_exit.sort_values(by='time', ascending=True, inplace=True)
+    # ret_exit.sort_values(by='time', ascending=True, inplace=True)
     ret.reset_index(inplace=True)
-    ret_exit.reset_index(inplace=True)
+    # ret_exit.reset_index(inplace=True)
     for col in ohlc:
         ret[col] = ret[col].astype(float)
-        ret_exit[col] = ret_exit[col].astype(float)
-    temp = pd.DataFrame()
-    temp_exit = pd.DataFrame()
-    temp = ret.iloc[:500].copy()
-    data_columns = [ 'entry_time', 'entry_price', 'exit_time', 'exit_price']
-    trade_data = pd.DataFrame(columns=data_columns)
-    ret = ret[500:]
+        # ret_exit[col] = ret_exit[col].astype(float)
+    # temp = pd.DataFrame()
+    # temp_exit = pd.DataFrame()
+    # temp = ret.iloc[:500].copy()
+    # data_columns = [ 'entry_time', 'entry_price', 'exit_time', 'exit_price']
+    # trade_data = pd.DataFrame(columns=data_columns)
+    # ret = ret[500:]
     
     
+    print(ret)
+    # order_placed = False
+    # main_signal = False
+    # confirmation_waiting = False
+    # last_exit_index = 100
+    # order_counter = 0
+    # bull_or_bear = None
     
-    order_placed = False
-    main_signal = False
-    confirmation_waiting = False
-    last_exit_index = 100
-    order_counter = 0
-    bull_or_bear = None
-    
-    for i in range(0, len(ret)):
+    # for i in range(0, len(ret)):
         
-        if (order_placed == True and main_signal == False and confirmation_waiting == False):
-            for j in range(last_exit_index + 1, len(ret_exit)):
-                if ret_exit["time"].iloc[j] <= entry_time:
-                    new_rows = ret_exit.iloc[last_exit_index + 1 : j + 1]
-                    temp_exit = pd.concat([temp_exit, new_rows], ignore_index=True)
-                    last_exit_index = j
-                else:
-                    new_rows = ret_exit.iloc[last_exit_index + 1 : j + 1]
-                    temp_exit = pd.concat([temp_exit, new_rows], ignore_index=True)
-                    last_exit_index = j
-                    break
-            exit_time, exit_price, order_placed, order_exit = check_exit(temp_exit, bull_or_bear) 
-            if order_exit == True:
-                trade_data = append_value(trade_data, 'exit_time', exit_time, order_counter)
-                trade_data = append_value(trade_data, 'exit_price', exit_price, order_counter)
-                order_counter = order_counter + 1
-        elif (order_placed == False and main_signal == False and confirmation_waiting == True):
-            main_signal, confirmation_waiting = confirmation(1.5, temp, bull_or_bear)
-        elif (order_placed == False and main_signal == True and confirmation_waiting == False):
-            entry_time , entry_price, main_signal, order_placed = place_order(temp)
-            trade_data = append_value(trade_data, 'entry_time', entry_time, order_counter)
-            trade_data = append_value(trade_data, 'entry_price', entry_price, order_counter)
-        elif (order_placed == False and main_signal == False and confirmation_waiting ==  False):
-            main_signal, confirmation_waiting, bull_or_bear = check_trade(3,1.5, temp)
+    #     if (order_placed == True and main_signal == False and confirmation_waiting == False):
+    #         for j in range(last_exit_index + 1, len(ret_exit)):
+    #             if ret_exit["time"].iloc[j] <= entry_time:
+    #                 new_rows = ret_exit.iloc[last_exit_index + 1 : j + 1]
+    #                 temp_exit = pd.concat([temp_exit, new_rows], ignore_index=True)
+    #                 last_exit_index = j
+    #             else:
+    #                 new_rows = ret_exit.iloc[last_exit_index + 1 : j + 1]
+    #                 temp_exit = pd.concat([temp_exit, new_rows], ignore_index=True)
+    #                 last_exit_index = j
+    #                 break
+    #         exit_time, exit_price, order_placed, order_exit = check_exit(temp_exit, bull_or_bear) 
+    #         if order_exit == True:
+    #             trade_data = append_value(trade_data, 'exit_time', exit_time, order_counter)
+    #             trade_data = append_value(trade_data, 'exit_price', exit_price, order_counter)
+    #             order_counter = order_counter + 1
+    #     elif (order_placed == False and main_signal == False and confirmation_waiting == True):
+    #         main_signal, confirmation_waiting = confirmation(1.5, temp, bull_or_bear)
+    #     elif (order_placed == False and main_signal == True and confirmation_waiting == False):
+    #         entry_time , entry_price, main_signal, order_placed = place_order(temp)
+    #         trade_data = append_value(trade_data, 'entry_time', entry_time, order_counter)
+    #         trade_data = append_value(trade_data, 'entry_price', entry_price, order_counter)
+    #     elif (order_placed == False and main_signal == False and confirmation_waiting ==  False):
+    #         main_signal, confirmation_waiting, bull_or_bear = check_trade(3,1.5, temp)
         
-        next_row = ret.iloc[[i]]
-        temp = pd.concat([temp, next_row], ignore_index=True) 
+    #     next_row = ret.iloc[[i]]
+    #     temp = pd.concat([temp, next_row], ignore_index=True) 
             
     
-    current_directory = os.getcwd()
-    df_comb_file = os.path.join(current_directory, 'testing2.csv')
-    trade_data.to_csv(df_comb_file, index=False)
+    # current_directory = os.getcwd()
+    # df_comb_file = os.path.join(current_directory, 'testing2.csv')
+    # trade_data.to_csv(df_comb_file, index=False)
+    
+    
     
     
     # df_ultimate = supertrend.SuperTrend(ret, period= 17, multiplier=3, ohlc=ohlc)
